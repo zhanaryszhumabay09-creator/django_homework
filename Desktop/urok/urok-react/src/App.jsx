@@ -1,12 +1,10 @@
 import "./App.css";
-import UserProfile from "./UserProfile";
+import EscapeRoom from "./EscapeRoom";
 
 function App() {
   return (
     <div className="page">
-      <h1>Профиль пользователя</h1>
-
-      <UserProfile />
+      <EscapeRoom />
     </div>
   );
 }
