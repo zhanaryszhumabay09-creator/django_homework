@@ -1,14 +1,28 @@
 import "./App.css";
-import ProductCard from "./ProductCard";
+import MovieCard from "./MovieCard";
 
 function App() {
   return (
     <div className="page">
-      <h1>Товары</h1>
+      <h1>Фильмы</h1>
 
-      <ProductCard name="iPhone 17" price={499000} />
-      <ProductCard name="Ноутбук Lenovo" price={350000} />
-      <ProductCard name="Наушники AirPods" price={90000} />
+      <MovieCard
+        title="Интерстеллар"
+        genre="Фантастика"
+        year={2014}
+      />
+
+      <MovieCard
+        title="Начало"
+        genre="Фантастика, триллер"
+        year={2010}
+      />
+
+      <MovieCard
+        title="Форсаж"
+        genre="Боевик"
+        year={2001}
+      />
     </div>
   );
 }

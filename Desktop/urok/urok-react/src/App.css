@@ -10,8 +10,8 @@ body {
   text-align: center;
 }
 
-.product-card {
-  width: 300px;
+.movie-card {
+  width: 320px;
   margin: 20px auto;
   padding: 20px;
   background: white;
@@ -19,12 +19,19 @@ body {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.product-card button {
-  padding: 8px 15px;
-  font-size: 18px;
+.movie-card h2 {
+  margin-top: 0;
+}
+
+.movie-card button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #222;
+  color: white;
   cursor: pointer;
 }
 
-.product-card span {
-  margin: 0 15px;
+.movie-card button:hover {
+  background: #444;
 }
