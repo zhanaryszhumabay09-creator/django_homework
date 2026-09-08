@@ -1,12 +1,12 @@
 import "./App.css";
-import ProductCard from "./ProductCard";
+import UserProfile from "./UserProfile";
 
 function App() {
   return (
     <div className="page">
-      <h1>Карточка товара</h1>
+      <h1>Профиль пользователя</h1>
 
-      <ProductCard />
+      <UserProfile />
     </div>
   );
 }
