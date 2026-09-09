@@ -24,6 +24,15 @@ function App() {
   const [title, setTitle] = useState("");
   const [genre, setGenre] = useState("Фантастика");
 
+  // Фильтр по жанру
+  const [filterGenre, setFilterGenre] = useState("Все");
+
+  // Редактирование
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editGenre, setEditGenre] = useState("");
+
+  // Добавление фильма
   const addMovie = () => {
     if (title.trim() === "") {
       return;
@@ -41,13 +50,46 @@ function App() {
     setGenre("Фантастика");
   };
 
+  // Удаление фильма
   const deleteMovie = (id) => {
     setMovies(movies.filter((movie) => movie.id !== id));
   };
 
-  const filteredMovies = movies.filter((movie) =>
-    movie.title.toLowerCase().includes(search.toLowerCase())
-  );
+  // Начать редактирование
+  const startEdit = (movie) => {
+    setEditingId(movie.id);
+    setEditTitle(movie.title);
+    setEditGenre(movie.genre);
+  };
+
+  // Сохранить изменения
+  const saveEdit = (id) => {
+    setMovies(
+      movies.map((movie) =>
+        movie.id === id
+          ? {
+              ...movie,
+              title: editTitle,
+              genre: editGenre,
+            }
+          : movie
+      )
+    );
+
+    setEditingId(null);
+  };
+
+  // Поиск + фильтр по жанру
+  const filteredMovies = movies.filter((movie) => {
+    const matchesSearch = movie.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    const matchesGenre =
+      filterGenre === "Все" || movie.genre === filterGenre;
+
+    return matchesSearch && matchesGenre;
+  });
 
   return (
     <div className="app">
@@ -61,7 +103,7 @@ function App() {
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      {/* Добавление фильма */}
+      {/* Добавление */}
       <div className="add-movie">
         <input
           type="text"
@@ -78,32 +120,82 @@ function App() {
           <option value="Комедия">Комедия</option>
           <option value="Боевик">Боевик</option>
           <option value="Драма">Драма</option>
-          <option value="Ужасы">Ужасы</option>
         </select>
 
         <button onClick={addMovie}>Добавить</button>
       </div>
+
+      {/* Фильтр */}
+      <div className="filter">
+        <label>Фильтр по жанру: </label>
+
+        <select
+          value={filterGenre}
+          onChange={(e) => setFilterGenre(e.target.value)}
+        >
+          <option value="Все">Все</option>
+          <option value="Фантастика">Фантастика</option>
+          <option value="Комедия">Комедия</option>
+          <option value="Боевик">Боевик</option>
+          <option value="Драма">Драма</option>
+        </select>
+      </div>
+
+      {/* Количество найденных */}
+      <h3>Найдено фильмов: {filteredMovies.length}</h3>
 
       {/* Список фильмов */}
       <div className="movies">
         {filteredMovies.length > 0 ? (
           filteredMovies.map((movie) => (
             <div className="movie-card" key={movie.id}>
-              <div>
-                <h2>{movie.title}</h2>
-                <p>Жанр: {movie.genre}</p>
-              </div>
+              {editingId === movie.id ? (
+                <>
+                  <input
+                    type="text"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                  />
 
-              <button
-                className="delete-button"
-                onClick={() => deleteMovie(movie.id)}
-              >
-                Удалить
-              </button>
+                  <select
+                    value={editGenre}
+                    onChange={(e) => setEditGenre(e.target.value)}
+                  >
+                    <option value="Фантастика">Фантастика</option>
+                    <option value="Комедия">Комедия</option>
+                    <option value="Боевик">Боевик</option>
+                    <option value="Драма">Драма</option>
+                  </select>
+
+                  <button onClick={() => saveEdit(movie.id)}>
+                    Сохранить
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <h2>{movie.title}</h2>
+                    <p>Жанр: {movie.genre}</p>
+                  </div>
+
+                  <div className="buttons">
+                    <button onClick={() => startEdit(movie)}>
+                      Изменить
+                    </button>
+
+                    <button
+                      className="delete-button"
+                      onClick={() => deleteMovie(movie.id)}
+                    >
+                      Удалить
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           ))
         ) : (
-          <p className="not-found">Фильм не найден</p>
+          <p className="empty">Список фильмов пуст</p>
         )}
       </div>
     </div>
