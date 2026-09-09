@@ -1,0 +1,60 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+}
+
+.app {
+  max-width: 700px;
+  margin: 50px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.movies {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.movie-card {
+  padding: 15px 20px;
+  background: #f7f7f7;
+  border-radius: 10px;
+  border-left: 5px solid #555;
+}
+
+.movie-card h2 {
+  margin: 0 0 8px;
+}
+
+.movie-card p {
+  margin: 0;
+  color: #666;
+}
+
+.not-found {
+  text-align: center;
+  font-size: 18px;
+  color: #d33;
+}
