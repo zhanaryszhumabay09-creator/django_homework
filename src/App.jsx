@@ -1,202 +1,117 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
+const songs = [
+  {
+    title: "Blinding Lights",
+    artist: "The Weeknd",
+    cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500",
+  },
+  {
+    title: "Starboy",
+    artist: "The Weeknd",
+    cover: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=500",
+  },
+  {
+    title: "Believer",
+    artist: "Imagine Dragons",
+    cover: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=500",
+  },
+  {
+    title: "Perfect",
+    artist: "Ed Sheeran",
+    cover: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=500",
+  },
+  {
+    title: "Shape of You",
+    artist: "Ed Sheeran",
+    cover: "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=500",
+  },
+];
+
 function App() {
-  const [movies, setMovies] = useState([
-    {
-      id: 1,
-      title: "Интерстеллар",
-      genre: "Фантастика",
-    },
-    {
-      id: 2,
-      title: "Матрица",
-      genre: "Фантастика",
-    },
-    {
-      id: 3,
-      title: "1+1",
-      genre: "Комедия",
-    },
-  ]);
+  const [currentSong, setCurrentSong] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
 
-  const [search, setSearch] = useState("");
-  const [title, setTitle] = useState("");
-  const [genre, setGenre] = useState("Фантастика");
+  const song = songs[currentSong];
 
-  // Фильтр по жанру
-  const [filterGenre, setFilterGenre] = useState("Все");
+  // При запуске и размонтировании
+  useEffect(() => {
+    console.log("Player started");
 
-  // Редактирование
-  const [editingId, setEditingId] = useState(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editGenre, setEditGenre] = useState("");
-
-  // Добавление фильма
-  const addMovie = () => {
-    if (title.trim() === "") {
-      return;
-    }
-
-    const newMovie = {
-      id: Date.now(),
-      title: title,
-      genre: genre,
+    return () => {
+      console.log("Player closed");
     };
+  }, []);
 
-    setMovies([...movies, newMovie]);
+  // При смене песни
+  useEffect(() => {
+    setProgress(0);
 
-    setTitle("");
-    setGenre("Фантастика");
-  };
+    console.log("Current song:", song.title);
+  }, [currentSong]);
 
-  // Удаление фильма
-  const deleteMovie = (id) => {
-    setMovies(movies.filter((movie) => movie.id !== id));
-  };
+  // Прогресс трека
+  useEffect(() => {
+    if (!isPlaying) return;
 
-  // Начать редактирование
-  const startEdit = (movie) => {
-    setEditingId(movie.id);
-    setEditTitle(movie.title);
-    setEditGenre(movie.genre);
-  };
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          return 0;
+        }
 
-  // Сохранить изменения
-  const saveEdit = (id) => {
-    setMovies(
-      movies.map((movie) =>
-        movie.id === id
-          ? {
-              ...movie,
-              title: editTitle,
-              genre: editGenre,
-            }
-          : movie
-      )
-    );
+        return prev + 1;
+      });
+    }, 300);
 
-    setEditingId(null);
-  };
+    return () => clearInterval(timer);
+  }, [isPlaying, currentSong]);
 
-  // Поиск + фильтр по жанру
-  const filteredMovies = movies.filter((movie) => {
-    const matchesSearch = movie.title
-      .toLowerCase()
-      .includes(search.toLowerCase());
-
-    const matchesGenre =
-      filterGenre === "Все" || movie.genre === filterGenre;
-
-    return matchesSearch && matchesGenre;
-  });
+  // Следующий трек
+  function nextSong() {
+    setCurrentSong((prev) => (prev + 1) % songs.length);
+  }
 
   return (
     <div className="app">
-      <h1>🎬 Менеджер фильмов</h1>
+      <div className="player">
+        <h1>🎵 Music Player</h1>
 
-      {/* Поиск */}
-      <input
-        type="text"
-        placeholder="Поиск фильма..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-
-      {/* Добавление */}
-      <div className="add-movie">
-        <input
-          type="text"
-          placeholder="Название фильма"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+        <img
+          className="cover"
+          src={song.cover}
+          alt={song.title}
         />
 
-        <select
-          value={genre}
-          onChange={(e) => setGenre(e.target.value)}
-        >
-          <option value="Фантастика">Фантастика</option>
-          <option value="Комедия">Комедия</option>
-          <option value="Боевик">Боевик</option>
-          <option value="Драма">Драма</option>
-        </select>
+        <h2>{song.title}</h2>
+        <p className="artist">{song.artist}</p>
 
-        <button onClick={addMovie}>Добавить</button>
-      </div>
+        <div className="progress-container">
+          <div
+            className="progress"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
 
-      {/* Фильтр */}
-      <div className="filter">
-        <label>Фильтр по жанру: </label>
+        <div className="progress-text">
+          {progress}%
+        </div>
 
-        <select
-          value={filterGenre}
-          onChange={(e) => setFilterGenre(e.target.value)}
-        >
-          <option value="Все">Все</option>
-          <option value="Фантастика">Фантастика</option>
-          <option value="Комедия">Комедия</option>
-          <option value="Боевик">Боевик</option>
-          <option value="Драма">Драма</option>
-        </select>
-      </div>
+        <div className="buttons">
+          <button onClick={() => setIsPlaying(!isPlaying)}>
+            {isPlaying ? "⏸ Pause" : "▶ Play"}
+          </button>
 
-      {/* Количество найденных */}
-      <h3>Найдено фильмов: {filteredMovies.length}</h3>
+          <button onClick={nextSong}>
+            ⏭ Следующий трек
+          </button>
+        </div>
 
-      {/* Список фильмов */}
-      <div className="movies">
-        {filteredMovies.length > 0 ? (
-          filteredMovies.map((movie) => (
-            <div className="movie-card" key={movie.id}>
-              {editingId === movie.id ? (
-                <>
-                  <input
-                    type="text"
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                  />
-
-                  <select
-                    value={editGenre}
-                    onChange={(e) => setEditGenre(e.target.value)}
-                  >
-                    <option value="Фантастика">Фантастика</option>
-                    <option value="Комедия">Комедия</option>
-                    <option value="Боевик">Боевик</option>
-                    <option value="Драма">Драма</option>
-                  </select>
-
-                  <button onClick={() => saveEdit(movie.id)}>
-                    Сохранить
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div>
-                    <h2>{movie.title}</h2>
-                    <p>Жанр: {movie.genre}</p>
-                  </div>
-
-                  <div className="buttons">
-                    <button onClick={() => startEdit(movie)}>
-                      Изменить
-                    </button>
-
-                    <button
-                      className="delete-button"
-                      onClick={() => deleteMovie(movie.id)}
-                    >
-                      Удалить
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          ))
-        ) : (
-          <p className="empty">Список фильмов пуст</p>
-        )}
+        <p className="track-number">
+          Трек {currentSong + 1} из {songs.length}
+        </p>
       </div>
     </div>
   );
