@@ -1,111 +1,198 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
 
 function App() {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedTag, setSelectedTag] = useState("all");
+  const [customer, setCustomer] = useState("");
+  const [bun, setBun] = useState("Бриошь");
+  const [meat, setMeat] = useState("");
+  const [ingredients, setIngredients] = useState([]);
+  const [quantity, setQuantity] = useState(1);
 
-  const [limit, setLimit] = useState(10);
+  const [order, setOrder] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setLoading(true);
-
-    fetch(`https://dummyjson.com/posts?limit=${limit}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setPosts(data.posts);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Ошибка:", error);
-        setLoading(false);
-      });
-  }, [limit]);
-
-  // Получаем все теги
-  const allTags = [
-    "all",
-    ...new Set(posts.flatMap((post) => post.tags)),
+  const availableIngredients = [
+    "Сыр",
+    "Бекон",
+    "Помидор",
+    "Салат",
+    "Лук",
   ];
 
-  // Фильтруем посты
-  const filteredPosts =
-    selectedTag === "all"
-      ? posts
-      : posts.filter((post) => post.tags.includes(selectedTag));
+  const handleIngredientChange = (ingredient) => {
+    if (ingredients.includes(ingredient)) {
+      setIngredients(
+        ingredients.filter((item) => item !== ingredient)
+      );
+    } else {
+      setIngredients([...ingredients, ingredient]);
+    }
+  };
 
-  // Загрузить ещё 10
-  const loadMore = () => {
-    setLimit(limit + 10);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setError("");
+    setOrder(null);
+
+    // Главное дополнительное условие
+    if (!meat) {
+      setError(" Сначала выберите мясо!");
+      return;
+    }
+
+    if (!customer.trim()) {
+      setError(" Введите имя клиента!");
+      return;
+    }
+
+    const burgerData = {
+      customer: customer,
+      bun: bun,
+      meat: meat,
+      ingredients: ingredients,
+      quantity: quantity,
+    };
+
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/orders/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(burgerData),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error("Ошибка при создании заказа");
+      }
+
+      setOrder(data);
+
+      // Очищаем форму
+      setCustomer("");
+      setMeat("");
+      setIngredients([]);
+      setQuantity(1);
+    } catch (error) {
+      setError(" Не удалось отправить заказ");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="app">
-      <header>
-        <h1> News Feed</h1>
-        <p>Последние новости и интересные публикации</p>
-      </header>
+      <div className="burger-container">
+        <h1> Конструктор бургера</h1>
 
-      <div className="filters">
-        <button
-          className={selectedTag === "all" ? "active" : ""}
-          onClick={() => setSelectedTag("all")}
-        >
-          Все
-        </button>
+        <form onSubmit={handleSubmit}>
+          <label>Имя клиента</label>
 
-        {allTags
-          .filter((tag) => tag !== "all")
-          .map((tag) => (
-            <button
-              key={tag}
-              className={selectedTag === tag ? "active" : ""}
-              onClick={() => setSelectedTag(tag)}
-            >
-              #{tag}
-            </button>
-          ))}
-      </div>
+          <input
+            type="text"
+            placeholder="Например: Мага"
+            value={customer}
+            onChange={(e) => setCustomer(e.target.value)}
+          />
 
-      {loading ? (
-        <h2 className="loading">Загрузка новостей...</h2>
-      ) : (
-        <>
-          <div className="posts">
-            {filteredPosts.map((post) => (
-              <div className="post-card" key={post.id}>
-                <h2>{post.title}</h2>
+          <label>Булочка</label>
 
-                <p>{post.body}</p>
+          <select
+            value={bun}
+            onChange={(e) => setBun(e.target.value)}
+          >
+            <option value="Бриошь">Бриошь</option>
+            <option value="Классическая">Классическая</option>
+            <option value="Чёрная">Чёрная</option>
+          </select>
 
-                <div className="likes">
-                   {post.reactions?.likes || 0}
-                  <span>
-                     {post.reactions?.dislikes || 0}
-                  </span>
-                </div>
+          <label>Мясо</label>
 
-                <div className="tags">
-                  {post.tags.map((tag) => (
-                    <span key={tag}>#{tag}</span>
-                  ))}
-                </div>
-              </div>
+          <select
+            value={meat}
+            onChange={(e) => setMeat(e.target.value)}
+          >
+            <option value="">Выберите мясо</option>
+            <option value="Говядина">Говядина</option>
+            <option value="Курица">Курица</option>
+            <option value="Свинина">Свинина</option>
+          </select>
+
+          <label>Дополнительные ингредиенты</label>
+
+          <div className="ingredients">
+            {availableIngredients.map((ingredient) => (
+              <label
+                className="ingredient"
+                key={ingredient}
+              >
+                <input
+                  type="checkbox"
+                  checked={ingredients.includes(ingredient)}
+                  onChange={() =>
+                    handleIngredientChange(ingredient)
+                  }
+                />
+
+                {ingredient}
+              </label>
             ))}
           </div>
 
-          {selectedTag === "all" && limit < 251 && (
-            <button className="load-more" onClick={loadMore}>
-              Загрузить ещё
-            </button>
-          )}
+          <label>Количество</label>
 
-          {filteredPosts.length === 0 && (
-            <h2 className="empty">Постов с таким тегом нет</h2>
-          )}
-        </>
-      )}
+          <input
+            type="number"
+            min="1"
+            value={quantity}
+            onChange={(e) =>
+              setQuantity(Number(e.target.value))
+            }
+          />
+
+          <button type="submit" disabled={loading}>
+            {loading ? "Отправка..." : " Заказать"}
+          </button>
+        </form>
+
+        {error && (
+          <div className="error">
+            {error}
+          </div>
+        )}
+
+        {order && (
+          <div className="success">
+            <h2> Заказ создан!</h2>
+
+            <p>
+              <strong>Бургер:</strong>{" "}
+              {order.bun} + {order.meat}
+            </p>
+
+            <p>
+              <strong>Добавки:</strong>{" "}
+              {order.ingredients.length > 0
+                ? order.ingredients.join(", ")
+                : "Нет"}
+            </p>
+
+            <p>
+              <strong>Количество:</strong>{" "}
+              {order.quantity}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
