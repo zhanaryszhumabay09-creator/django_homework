@@ -1,116 +1,87 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import "./App.css";
 
 function App() {
-  const [cat, setCat] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [favorites, setFavorites] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [userId, setUserId] = useState("");
+  const [text, setText] = useState("");
+  const [message, setMessage] = useState("");
 
-  const getRandomCat = async () => {
-    setLoading(true);
-    setError("");
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:8000/api/users/")
+      .then((response) => {
+        setUsers(response.data);
 
-    try {
-      const response = await fetch(
-        "https://api.thecatapi.com/v1/images/search"
-      );
+        if (response.data.length > 0) {
+          setUserId(response.data[0].id);
+        }
+      })
+      .catch((error) => {
+        console.error("Ошибка:", error);
+      });
+  }, []);
 
-      if (!response.ok) {
-        throw new Error("Ошибка запроса");
-      }
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
-      const data = await response.json();
+    axios
+      .post("http://127.0.0.1:8000/api/notes/", {
+        user_id: Number(userId),
+        text: text,
+      })
+      .then((response) => {
+        const selectedUser = users.find(
+          (user) => user.id === Number(userId)
+        );
 
-      setCat(data[0]);
-    } catch (error) {
-      setError("Не удалось загрузить котика 😿");
-    } finally {
-      setLoading(false);
-    }
-  };
+        setMessage(
+          ` ${response.data.message} для ${selectedUser.username}`
+        );
 
-  const addToFavorites = () => {
-    if (!cat) return;
-
-    const alreadyExists = favorites.some(
-      (favorite) => favorite.id === cat.id
-    );
-
-    if (!alreadyExists) {
-      setFavorites([...favorites, cat]);
-    }
-  };
-
-  const removeFromFavorites = (id) => {
-    setFavorites(
-      favorites.filter((favorite) => favorite.id !== id)
-    );
+        setText("");
+      })
+      .catch((error) => {
+        console.error("Ошибка:", error);
+        setMessage(" Ошибка при создании заметки");
+      });
   };
 
   return (
     <div className="app">
-      <h1> Random Cat</h1>
+      <div className="card">
+        <h1> Аккаунты и заметки</h1>
 
-      <div className="cat-container">
-        {loading && <p className="loading">Загрузка котика... </p>}
+        <form onSubmit={handleSubmit}>
+          <label>Пользователь:</label>
 
-        {error && <p className="error">{error}</p>}
-
-        {!loading && !error && cat && (
-          <img
-            className="cat-image"
-            src={cat.url}
-            alt="Random cat"
-          />
-        )}
-
-        {!cat && !loading && !error && (
-          <p className="welcome">
-            Нажми кнопку и получи случайного котика 
-          </p>
-        )}
-
-        <button className="new-cat" onClick={getRandomCat}>
-          Новый кот 
-        </button>
-
-        {cat && !loading && (
-          <button
-            className="favorite-button"
-            onClick={addToFavorites}
+          <select
+            value={userId}
+            onChange={(event) => setUserId(event.target.value)}
           >
-             Добавить в избранное
-          </button>
-        )}
-      </div>
-
-      <section className="favorites">
-        <h2> Избранные котики</h2>
-
-        {favorites.length === 0 ? (
-          <p>Пока нет избранных котиков</p>
-        ) : (
-          <div className="favorites-grid">
-            {favorites.map((favorite) => (
-              <div className="favorite-card" key={favorite.id}>
-                <img
-                  src={favorite.url}
-                  alt="Favorite cat"
-                />
-
-                <button
-                  onClick={() =>
-                    removeFromFavorites(favorite.id)
-                  }
-                >
-                   Удалить
-                </button>
-              </div>
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.username}
+              </option>
             ))}
-          </div>
-        )}
-      </section>
+          </select>
+
+          <label>Заметка:</label>
+
+          <textarea
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            placeholder="Не забыть сделать домашку"
+          />
+
+          <button type="submit">
+            Отправить
+          </button>
+        </form>
+
+        {message && <div className="message">{message}</div>}
+      </div>
     </div>
   );
 }
