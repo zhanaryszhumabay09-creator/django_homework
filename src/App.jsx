@@ -1,195 +1,189 @@
 import { useState } from "react";
+import axios from "axios";
 import "./App.css";
 
 function App() {
-  const [customer, setCustomer] = useState("");
-  const [bun, setBun] = useState("Бриошь");
-  const [meat, setMeat] = useState("");
-  const [ingredients, setIngredients] = useState([]);
-  const [quantity, setQuantity] = useState(1);
+  const [playerName, setPlayerName] = useState("");
+  const [number, setNumber] = useState("");
+  const [secretNumber, setSecretNumber] = useState(null);
+  const [attempts, setAttempts] = useState(0);
+  const [message, setMessage] = useState("");
+  const [gameStarted, setGameStarted] = useState(false);
+  const [gameFinished, setGameFinished] = useState(false);
+  const [results, setResults] = useState([]);
 
-  const [order, setOrder] = useState(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const availableIngredients = [
-    "Сыр",
-    "Бекон",
-    "Помидор",
-    "Салат",
-    "Лук",
-  ];
-
-  const handleIngredientChange = (ingredient) => {
-    if (ingredients.includes(ingredient)) {
-      setIngredients(
-        ingredients.filter((item) => item !== ingredient)
-      );
-    } else {
-      setIngredients([...ingredients, ingredient]);
+  const startGame = () => {
+    if (!playerName.trim()) {
+      setMessage("Введите имя игрока");
+      return;
     }
+
+    const randomNumber = Math.floor(Math.random() * 100) + 1;
+
+    setSecretNumber(randomNumber);
+    setAttempts(0);
+    setNumber("");
+    setMessage("Я загадал число от 1 до 100!");
+    setGameStarted(true);
+    setGameFinished(false);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const makeAttempt = () => {
+    const userNumber = Number(number);
 
-    setError("");
-    setOrder(null);
-
-    // Главное дополнительное условие
-    if (!meat) {
-      setError(" Сначала выберите мясо!");
+    if (!userNumber || userNumber < 1 || userNumber > 100) {
+      setMessage("Введите число от 1 до 100");
       return;
     }
 
-    if (!customer.trim()) {
-      setError(" Введите имя клиента!");
-      return;
+    const newAttempts = attempts + 1;
+    setAttempts(newAttempts);
+
+    if (userNumber < secretNumber) {
+      setMessage("Число больше ⬆️");
+    } else if (userNumber > secretNumber) {
+      setMessage("Число меньше ⬇️");
+    } else {
+      setMessage("Угадано! ");
+      setGameFinished(true);
+      setGameStarted(false);
+
+      saveResult(newAttempts, "win");
     }
 
-    const burgerData = {
-      customer: customer,
-      bun: bun,
-      meat: meat,
-      ingredients: ingredients,
-      quantity: quantity,
-    };
+    setNumber("");
+  };
 
+  const saveResult = async (attemptCount, result) => {
     try {
-      setLoading(true);
-
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/orders/",
+      await axios.post(
+        "http://127.0.0.1:8000/api/game-results/",
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(burgerData),
+          player_name: playerName,
+          attempts: attemptCount,
+          result: result,
         }
       );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error("Ошибка при создании заказа");
-      }
-
-      setOrder(data);
-
-      // Очищаем форму
-      setCustomer("");
-      setMeat("");
-      setIngredients([]);
-      setQuantity(1);
+      loadResults();
     } catch (error) {
-      setError(" Не удалось отправить заказ");
-    } finally {
-      setLoading(false);
+      console.error("Ошибка сохранения:", error);
     }
+  };
+
+  const loadResults = async () => {
+    try {
+      const response = await axios.get(
+        "http://127.0.0.1:8000/api/game-results/"
+      );
+
+      setResults(response.data);
+    } catch (error) {
+      console.error("Ошибка загрузки:", error);
+    }
+  };
+
+  const restartGame = () => {
+    setSecretNumber(null);
+    setAttempts(0);
+    setNumber("");
+    setMessage("");
+    setGameStarted(false);
+    setGameFinished(false);
   };
 
   return (
     <div className="app">
-      <div className="burger-container">
-        <h1> Конструктор бургера</h1>
+      <div className="game-card">
+        <h1> Угадай число</h1>
 
-        <form onSubmit={handleSubmit}>
-          <label>Имя клиента</label>
+        {!gameStarted && !gameFinished && (
+          <>
+            <label>Имя игрока:</label>
 
-          <input
-            type="text"
-            placeholder="Например: Мага"
-            value={customer}
-            onChange={(e) => setCustomer(e.target.value)}
-          />
+            <input
+              type="text"
+              value={playerName}
+              onChange={(event) => setPlayerName(event.target.value)}
+              placeholder="Введите имя"
+            />
 
-          <label>Булочка</label>
-
-          <select
-            value={bun}
-            onChange={(e) => setBun(e.target.value)}
-          >
-            <option value="Бриошь">Бриошь</option>
-            <option value="Классическая">Классическая</option>
-            <option value="Чёрная">Чёрная</option>
-          </select>
-
-          <label>Мясо</label>
-
-          <select
-            value={meat}
-            onChange={(e) => setMeat(e.target.value)}
-          >
-            <option value="">Выберите мясо</option>
-            <option value="Говядина">Говядина</option>
-            <option value="Курица">Курица</option>
-            <option value="Свинина">Свинина</option>
-          </select>
-
-          <label>Дополнительные ингредиенты</label>
-
-          <div className="ingredients">
-            {availableIngredients.map((ingredient) => (
-              <label
-                className="ingredient"
-                key={ingredient}
-              >
-                <input
-                  type="checkbox"
-                  checked={ingredients.includes(ingredient)}
-                  onChange={() =>
-                    handleIngredientChange(ingredient)
-                  }
-                />
-
-                {ingredient}
-              </label>
-            ))}
-          </div>
-
-          <label>Количество</label>
-
-          <input
-            type="number"
-            min="1"
-            value={quantity}
-            onChange={(e) =>
-              setQuantity(Number(e.target.value))
-            }
-          />
-
-          <button type="submit" disabled={loading}>
-            {loading ? "Отправка..." : " Заказать"}
-          </button>
-        </form>
-
-        {error && (
-          <div className="error">
-            {error}
-          </div>
+            <button onClick={startGame}>
+              Начать игру
+            </button>
+          </>
         )}
 
-        {order && (
-          <div className="success">
-            <h2> Заказ создан!</h2>
+        {gameStarted && (
+          <>
+            <h2>Угадай число от 1 до 100</h2>
 
-            <p>
-              <strong>Бургер:</strong>{" "}
-              {order.bun} + {order.meat}
+            <input
+              type="number"
+              value={number}
+              onChange={(event) => setNumber(event.target.value)}
+              placeholder="Введите число"
+              min="1"
+              max="100"
+            />
+
+            <button onClick={makeAttempt}>
+              Проверить
+            </button>
+
+            <p className="attempts">
+              Попыток: {attempts}
+            </p>
+
+            <p className="message">
+              {message}
+            </p>
+          </>
+        )}
+
+        {gameFinished && (
+          <>
+            <p className="success">
+               {playerName}, ты угадал!
             </p>
 
             <p>
-              <strong>Добавки:</strong>{" "}
-              {order.ingredients.length > 0
-                ? order.ingredients.join(", ")
-                : "Нет"}
+              Количество попыток: {attempts}
             </p>
 
-            <p>
-              <strong>Количество:</strong>{" "}
-              {order.quantity}
-            </p>
+            <button onClick={restartGame}>
+              Начать заново
+            </button>
+          </>
+        )}
+
+        <hr />
+
+        <h2> Результаты игр</h2>
+
+        <button onClick={loadResults}>
+          Обновить результаты
+        </button>
+
+        {results.length === 0 ? (
+          <p>Результатов пока нет</p>
+        ) : (
+          <div className="results">
+            {results.map((item) => (
+              <div className="result" key={item.id}>
+                <strong>{item.player_name}</strong>
+
+                <span>
+                  Попыток: {item.attempts}
+                </span>
+
+                <span>
+                  {item.result === "win"
+                    ? "Победа "
+                    : "Поражение "}
+                </span>
+              </div>
+            ))}
           </div>
         )}
       </div>
