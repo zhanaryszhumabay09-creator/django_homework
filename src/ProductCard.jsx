@@ -1,53 +1,30 @@
 import { useState } from "react";
 
-function ProductCard() {
-  const [name, setName] = useState("");
-  const [count, setCount] = useState(1);
+function ProductCard({ name, price }) {
+  const [count, setCount] = useState(0);
 
-  const productName = "iPhone 17";
-  const price = 499000;
+  const increase = () => {
+    setCount(count + 1);
+  };
 
-  function addToCart() {
-    console.log("Имя покупателя:", name);
-    console.log("Название товара:", productName);
-    console.log("Количество:", count);
-  }
-
-  function clear() {
-    setName("");
-    setCount(1);
-  }
+  const decrease = () => {
+    if (count > 0) {
+      setCount(count - 1);
+    }
+  };
 
   return (
     <div className="product-card">
-      <h2 onClick={() => console.log(productName)}>
-        {productName}
-      </h2>
-
+      <h2>{name}</h2>
       <p>Цена: {price} ₸</p>
 
-      <input
-        type="text"
-        placeholder="Введите имя покупателя"
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-      />
+      <div className="counter">
+        <button onClick={decrease}>−</button>
 
-      <div>
-        <button onClick={() => setCount(count - 1)}>-</button>
+        <span>{count}</span>
 
-        <span> Количество: {count} </span>
-
-        <button onClick={() => setCount(count + 1)}>+</button>
+        <button onClick={increase}>+</button>
       </div>
-
-      <button onClick={addToCart}>
-        Добавить в корзину
-      </button>
-
-      <button onClick={clear}>
-        Очистить
-      </button>
     </div>
   );
 }

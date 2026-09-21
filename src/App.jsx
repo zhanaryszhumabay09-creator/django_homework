@@ -1,27 +1,17 @@
+import ProductCard from "./ProductCard";
 import "./App.css";
 
 function App() {
   return (
     <div className="app">
-      <div className="product-card">
-        <img
-          className="product-image"
-          src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80"
-          alt="Кроссовки"
-        />
+      <h1> Товары</h1>
 
-        <div className="product-info">
-          <h1 className="product-title">Nike Air Max</h1>
+      <div className="products">
+        <ProductCard name="Ноутбук Lenovo" price={350000} />
 
-          <p className="product-description">
-            Стильные и удобные кроссовки для повседневной носки
-            и активного образа жизни.
-          </p>
+        <ProductCard name="Наушники Airpods" price={45000} />
 
-          <p className="product-price">49 990 ₸</p>
-
-          <button className="buy-button">Купить</button>
-        </div>
+        <ProductCard name="Клавиатура AULA" price={25000} />
       </div>
     </div>
   );
