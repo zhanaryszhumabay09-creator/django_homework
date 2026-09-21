@@ -5,7 +5,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #f5f5f5;
+  background: #f1f3f6;
 }
 
 .app {
@@ -16,87 +16,55 @@ body {
   padding: 30px;
 }
 
-.burger-card {
-  width: 500px;
+.product-card {
+  width: 380px;
   background: white;
-  padding: 30px;
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-label {
+.product-image {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
   display: block;
-  margin-top: 15px;
-  margin-bottom: 7px;
+}
+
+.product-info {
+  padding: 25px;
+}
+
+.product-title {
+  margin: 0 0 12px;
+  font-size: 28px;
+  color: #222;
+}
+
+.product-description {
+  margin: 0 0 20px;
+  color: #666;
+  line-height: 1.6;
+}
+
+.product-price {
+  margin: 0 0 20px;
+  font-size: 25px;
   font-weight: bold;
 }
 
-input[type="text"],
-input[type="number"],
-select {
+.buy-button {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-}
-
-.ingredients {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.checkbox {
-  margin: 0;
-  font-weight: normal;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.checkbox input {
-  width: 18px;
-  height: 18px;
-}
-
-button {
-  width: 100%;
-  margin-top: 25px;
   padding: 14px;
   border: none;
   border-radius: 10px;
-  background: #ff7a00;
+  background: #111;
   color: white;
   font-size: 18px;
   font-weight: bold;
   cursor: pointer;
 }
 
-button:hover {
-  background: #e56700;
-}
-
-.error {
-  margin-top: 20px;
-  padding: 15px;
-  background: #ffe0e0;
-  color: #c00;
-  border-radius: 10px;
-}
-
-.success {
-  margin-top: 25px;
-  padding: 20px;
-  background: #e4ffe8;
-  border-radius: 12px;
-}
-
-.success h2 {
-  margin-top: 0;
+.buy-button:hover {
+  background: #333;
 }
