@@ -5,7 +5,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #f2f2f2;
+  background: #f5f5f5;
 }
 
 .app {
@@ -13,61 +13,90 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 30px;
 }
 
-.card {
-  width: 420px;
-  padding: 30px;
+.burger-card {
+  width: 500px;
   background: white;
-  border-radius: 15px;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+label {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 7px;
+  font-weight: bold;
 }
 
-input {
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 16px;
 }
 
+.ingredients {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.checkbox {
+  margin: 0;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox input {
+  width: 18px;
+  height: 18px;
+}
+
 button {
-  padding: 12px;
+  width: 100%;
+  margin-top: 25px;
+  padding: 14px;
   border: none;
-  border-radius: 8px;
-  background: #222;
+  border-radius: 10px;
+  background: #ff7a00;
   color: white;
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: bold;
   cursor: pointer;
 }
 
 button:hover {
-  background: #444;
+  background: #e56700;
 }
 
-button:disabled {
-  background: #999;
-  cursor: not-allowed;
-}
-
-.result {
-  margin-top: 25px;
-  padding: 20px;
-  background: #f5f5f5;
+.error {
+  margin-top: 20px;
+  padding: 15px;
+  background: #ffe0e0;
+  color: #c00;
   border-radius: 10px;
 }
 
-.result h2 {
+.success {
+  margin-top: 25px;
+  padding: 20px;
+  background: #e4ffe8;
+  border-radius: 12px;
+}
+
+.success h2 {
   margin-top: 0;
 }
