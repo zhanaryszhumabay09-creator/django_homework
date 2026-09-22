@@ -6,6 +6,7 @@ function MovieCard({ title, genre, year }) {
   return (
     <div className="movie-card">
       <h2>{title}</h2>
+
       <p>Жанр: {genre}</p>
       <p>Год: {year}</p>
 
