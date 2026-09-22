@@ -5,50 +5,7 @@ body {
   color: white;
 }
 
-.app {
+h1 {
   text-align: center;
-  padding: 40px;
-}
-
-.game {
-  width: 450px;
-  margin: 30px auto;
-  padding: 30px;
-  background: #1f2937;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-.game h2 {
-  margin-bottom: 20px;
-}
-
-.game p {
-  font-size: 18px;
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin: 25px 0;
-}
-
-button {
-  padding: 12px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.success {
-  padding: 15px;
-  background: #166534;
-  border-radius: 10px;
+  padding-top: 30px;
 }

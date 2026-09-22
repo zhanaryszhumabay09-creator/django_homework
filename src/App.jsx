@@ -1,12 +1,11 @@
-import EscapeRoom from "./components/EscapeRoom";
-import "./App.css";
+import MusicPlayer from "./components/MusicPlayer";
 
 function App() {
   return (
-    <div className="app">
-      <h1> Квестовая игра</h1>
+    <div>
+      <h1> Музыкальный плеер</h1>
 
-      <EscapeRoom />
+      <MusicPlayer />
     </div>
   );
 }
