@@ -6,25 +6,37 @@ body {
 }
 
 .app {
-  width: 600px;
-  max-width: 90%;
-  margin: 50px auto;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
 }
 
-.notes-manager {
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.task-form {
   background: #1f2937;
-  padding: 30px;
+  padding: 25px;
   border-radius: 15px;
+  margin-bottom: 25px;
 }
 
-textarea {
+.task-form input,
+.task-form textarea,
+.task-form select,
+.filter select {
   width: 100%;
-  height: 120px;
   box-sizing: border-box;
   padding: 12px;
-  margin-bottom: 15px;
-  border-radius: 8px;
+  margin: 8px 0;
   border: none;
+  border-radius: 8px;
+}
+
+.task-form textarea {
+  height: 100px;
   resize: vertical;
 }
 
@@ -36,12 +48,36 @@ button {
   cursor: pointer;
 }
 
-.note {
+.tasks {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-  padding: 10px;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.task-card {
+  background: #1f2937;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.task-card h3 {
+  margin-top: 0;
+}
+
+.status {
+  display: inline-block;
+  padding: 6px 10px;
   background: #374151;
+  border-radius: 6px;
+}
+
+.error {
+  padding: 12px;
+  margin-bottom: 15px;
+  background: #991b1b;
   border-radius: 8px;
+}
+
+.filter {
+  margin-bottom: 20px;
 }
