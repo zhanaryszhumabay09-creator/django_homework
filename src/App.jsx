@@ -1,138 +1,161 @@
-import { useEffect, useState } from "react";
-import {
-  getTasks,
-  createTask,
-  updateTask,
-  deleteTask,
-} from "./tasksApi";
+import { useState } from "react";
+import axios from "axios";
 import "./App.css";
 
-const emptyForm = {
-  title: "",
-  description: "",
-  status: "Новая",
-};
-
 function App() {
-  const [tasks, setTasks] = useState([]);
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState(null);
+  const [customer, setCustomer] = useState("");
+  const [bun, setBun] = useState("");
+  const [meat, setMeat] = useState("");
+  const [ingredients, setIngredients] = useState([]);
+  const [quantity, setQuantity] = useState(1);
 
-  const [filter, setFilter] = useState("Все");
-
-  const [loading, setLoading] = useState(false);
+  const [order, setOrder] = useState(null);
   const [error, setError] = useState("");
 
-  // Получение задач
-  async function loadTasks() {
-    try {
-      setLoading(true);
-      setError("");
+  const availableIngredients = [
+    "Сыр",
+    "Бекон",
+    "Помидор",
+    "Салат",
+    "Лук",
+  ];
 
-      const data = await getTasks();
-      setTasks(data);
-    } catch (error) {
-      console.error(error);
-      setError("Ошибка загрузки задач");
-    } finally {
-      setLoading(false);
+  const handleIngredientChange = (ingredient) => {
+    if (ingredients.includes(ingredient)) {
+      setIngredients(
+        ingredients.filter((item) => item !== ingredient)
+      );
+    } else {
+      setIngredients([...ingredients, ingredient]);
     }
-  }
+  };
 
-  useEffect(() => {
-    loadTasks();
-  }, []);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // Изменение полей формы
-  function handleChange(event) {
-    const { name, value } = event.target;
+    setError("");
+    setOrder(null);
 
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
+    
+    if (!meat) {
+      setError("Сначала выберите мясо!");
+      return;
+    }
 
-  // Добавление или редактирование
-  async function handleSubmit(event) {
-    event.preventDefault();
+    if (!customer.trim()) {
+      setError("Введите имя клиента!");
+      return;
+    }
 
-    if (!form.title.trim()) {
-      setError("Введите название задачи");
+    if (!bun) {
+      setError("Выберите булочку!");
       return;
     }
 
     try {
-      setError("");
-
-      if (editingId !== null) {
-        const updatedTask = await updateTask(
-          editingId,
-          form
-        );
-
-        setTasks((prev) =>
-          prev.map((task) =>
-            task.id === editingId ? updatedTask : task
-          )
-        );
-
-        setEditingId(null);
-      } else {
-        const newTask = await createTask(form);
-
-        setTasks((prev) => [...prev, newTask]);
-      }
-
-      setForm(emptyForm);
-    } catch (error) {
-      console.error(error);
-      setError("Ошибка сохранения задачи");
-    }
-  }
-
-  // Удаление
-  async function handleDelete(id) {
-    try {
-      setError("");
-
-      await deleteTask(id);
-
-      setTasks((prev) =>
-        prev.filter((task) => task.id !== id)
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/orders/",
+        {
+          customer: customer,
+          bun: bun,
+          meat: meat,
+          ingredients: ingredients,
+          quantity: quantity,
+        }
       );
+
+      setOrder(response.data);
     } catch (error) {
       console.error(error);
-      setError("Ошибка удаления задачи");
+      setError("Ошибка при создании заказа!");
     }
-  }
-
-  // Редактирование
-  function startEdit(task) {
-    setEditingId(task.id);
-
-    setForm({
-      title: task.title,
-      description: task.description,
-      status: task.status,
-    });
-  }
-
-  // Отмена редактирования
-  function cancelEdit() {
-    setEditingId(null);
-    setForm(emptyForm);
-  }
-
-  // Фильтр
-  const filteredTasks =
-    filter === "Все"
-      ? tasks
-      : tasks.filter((task) => task.status === filter);
+  };
 
   return (
-    <div className="app">
-      <h1> Менеджер задач</h1>
+    <div className="container">
+      <h1> Конструктор бургера</h1>
+
+      <form onSubmit={handleSubmit}>
+        <label>Имя клиента</label>
+
+        <input
+          type="text"
+          placeholder="Например: Мага"
+          value={customer}
+          onChange={(e) => setCustomer(e.target.value)}
+        />
+
+        <label>Булочка</label>
+
+        <select
+          value={bun}
+          onChange={(e) => setBun(e.target.value)}
+        >
+          <option value="">Выберите булочку</option>
+          <option value="Бриошь">Бриошь</option>
+          <option value="Классическая">Классическая</option>
+          <option value="Чиабатта">Чиабатта</option>
+        </select>
+
+        <label>Мясо</label>
+
+        <select
+          value={meat}
+          onChange={(e) => setMeat(e.target.value)}
+        >
+          <option value="">Выберите мясо</option>
+          <option value="Говядина">Говядина</option>
+          <option value="Курица">Курица</option>
+          <option value="Свинина">Свинина</option>
+        </select>
+
+        <label>Дополнительные ингредиенты</label>
+
+        <div className="ingredients">
+          {availableIngredients.map((ingredient) => (
+            <label
+              className="ingredient"
+              key={ingredient}
+            >
+              <input
+                type="checkbox"
+                checked={ingredients.includes(ingredient)}
+                onChange={() =>
+                  handleIngredientChange(ingredient)
+                }
+              />
+
+              {ingredient}
+            </label>
+          ))}
+        </div>
+
+        <label>Количество</label>
+
+        <div className="quantity">
+          <button
+            type="button"
+            onClick={() =>
+              setQuantity(Math.max(1, quantity - 1))
+            }
+          >
+            −
+          </button>
+
+          <span>{quantity}</span>
+
+          <button
+            type="button"
+            onClick={() => setQuantity(quantity + 1)}
+          >
+            +
+          </button>
+        </div>
+
+        <button className="order-button" type="submit">
+          Заказать
+        </button>
+      </form>
 
       {error && (
         <div className="error">
@@ -140,98 +163,26 @@ function App() {
         </div>
       )}
 
-      <form
-        className="task-form"
-        onSubmit={handleSubmit}
-      >
-        <h2>
-          {editingId !== null
-            ? " Редактирование"
-            : " Новая задача"}
-        </h2>
+      {order && (
+        <div className="success">
+          <h2> Заказ создан!</h2>
 
-        <input
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          placeholder="Название задачи"
-        />
+          <p>
+            <strong>Бургер:</strong>{" "}
+            {order.bun} + {order.meat}
+          </p>
 
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Описание задачи"
-        />
+          <p>
+            <strong>Добавки:</strong>{" "}
+            {order.ingredients.length > 0
+              ? order.ingredients.join(", ")
+              : "нет"}
+          </p>
 
-        <select
-          name="status"
-          value={form.status}
-          onChange={handleChange}
-        >
-          <option value="Новая">Новая</option>
-          <option value="В процессе">В процессе</option>
-          <option value="Выполнена">Выполнена</option>
-        </select>
-
-        <button type="submit">
-          {editingId !== null
-            ? "Сохранить изменения"
-            : "Добавить задачу"}
-        </button>
-
-        {editingId !== null && (
-          <button
-            type="button"
-            onClick={cancelEdit}
-          >
-            Отмена
-          </button>
-        )}
-      </form>
-
-      <div className="filter">
-        <label>Фильтр: </label>
-
-        <select
-          value={filter}
-          onChange={(event) => setFilter(event.target.value)}
-        >
-          <option value="Все">Все</option>
-          <option value="Новая">Новая</option>
-          <option value="В процессе">В процессе</option>
-          <option value="Выполнена">Выполнена</option>
-        </select>
-      </div>
-
-      {loading && <p>Загрузка...</p>}
-
-      <div className="tasks">
-        {filteredTasks.map((task) => (
-          <div className="task-card" key={task.id}>
-            <h3>{task.title}</h3>
-
-            <p>{task.description}</p>
-
-            <span className="status">
-              {task.status}
-            </span>
-
-            <div>
-              <button onClick={() => startEdit(task)}>
-                 Изменить
-              </button>
-
-              <button onClick={() => handleDelete(task.id)}>
-                 Удалить
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {!loading && filteredTasks.length === 0 && (
-        <p>Задач пока нет.</p>
+          <p>
+            <strong>Количество:</strong> {order.quantity}
+          </p>
+        </div>
       )}
     </div>
   );
