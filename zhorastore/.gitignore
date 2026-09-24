@@ -1,0 +1,38 @@
+# AI-GENERATED: Qoder
+# ---- Python / Django ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Environment & secrets
+.env
+*.env
+!.env.example
+
+# Database & media
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+
+# ---- Node / Vite ----
+node_modules/
+dist/
+.vite/
+*.local
+
+# ---- IDE / OS ----
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# TS build artifacts
+*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
