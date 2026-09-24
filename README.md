@@ -132,7 +132,21 @@ npm run dev                   # http://localhost:5173
 
 ## Скриншоты
 
-Скриншоты интерфейса находятся в папке [`screenshots/`](./screenshots).
+| Каталог | Страница товара |
+|---|---|
+| ![Каталог](screenshots/01-catalog.png) | ![Товар](screenshots/02-product.png) |
+
+| Корзина | Оформление заказа |
+|---|---|
+| ![Корзина](screenshots/04-cart.png) | ![Оформление](screenshots/05-checkout.png) |
+
+| История заказов | Личный кабинет |
+|---|---|
+| ![Заказы](screenshots/06-orders.png) | ![Профиль](screenshots/07-profile.png) |
+
+| Регистрация | Вход | Админ-панель |
+|---|---|---|
+| ![Регистрация](screenshots/03-register.png) | ![Вход](screenshots/08-login.png) | ![Админка](screenshots/09-admin.png) |
 
 ## Использование AI
 
