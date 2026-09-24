@@ -35,11 +35,20 @@ zhorastore/
 │   ├── package.json
 │   └── vite.config.ts
 ├── screenshots/
+├── .vscode/               # рекомендованные расширения и настройки VS Code
 ├── .gitignore
 └── README.md
 ```
 
 ## Запуск
+
+### 0. Открытие в VS Code
+
+Откройте корень репозитория в VS Code (`code .` или «File → Open Folder»).
+В папке [`.vscode/`](./.vscode) уже лежат `extensions.json` (рекомендованные
+расширения: Python, Pylance, Django, ESLint, Prettier) и `settings.json`
+(форматирование, пути анализа Python, исключения поиска). VS Code сам предложит
+установить рекомендованные расширения.
 
 ### 1. PostgreSQL
 
@@ -71,12 +80,17 @@ python manage.py runserver          # http://127.0.0.1:8000
 |---|---|---|
 | `SECRET_KEY` | секретный ключ Django | — |
 | `DEBUG` | режим отладки | `True` |
+| `DB_ENGINE` | `postgresql` или `sqlite` | `postgresql` |
 | `POSTGRES_DB` | имя базы | `zhorastore` |
 | `POSTGRES_USER` | пользователь | `postgres` |
 | `POSTGRES_PASSWORD` | пароль | — |
 | `POSTGRES_HOST` | хост | `127.0.0.1` |
 | `POSTGRES_PORT` | порт | `5432` |
 | `CORS_ALLOWED_ORIGINS` | разрешённые origins | `http://localhost:5173` |
+
+> **Быстрый демо-режим без PostgreSQL:** задайте в `.env` строку `DB_ENGINE=sqlite`.
+> Django использует файл `backend/db.sqlite3`, остальные `POSTGRES_*` переменные
+> можно не заполнять. Для продакшена оставьте `DB_ENGINE=postgresql`.
 
 ### 3. Frontend
 
