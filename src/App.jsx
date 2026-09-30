@@ -1,191 +1,169 @@
 import { useState } from "react";
-import axios from "axios";
-import "./App.css";
+import {
+  login,
+  getProfile,
+  logout,
+} from "./api";
 
 function App() {
-  const [customer, setCustomer] = useState("");
-  const [bun, setBun] = useState("");
-  const [meat, setMeat] = useState("");
-  const [ingredients, setIngredients] = useState([]);
-  const [quantity, setQuantity] = useState(1);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [order, setOrder] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const availableIngredients = [
-    "Сыр",
-    "Бекон",
-    "Помидор",
-    "Салат",
-    "Лук",
-  ];
-
-  const handleIngredientChange = (ingredient) => {
-    if (ingredients.includes(ingredient)) {
-      setIngredients(
-        ingredients.filter((item) => item !== ingredient)
-      );
-    } else {
-      setIngredients([...ingredients, ingredient]);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleLogin = async (event) => {
+    event.preventDefault();
 
     setError("");
-    setOrder(null);
-
-    
-    if (!meat) {
-      setError("Сначала выберите мясо!");
-      return;
-    }
-
-    if (!customer.trim()) {
-      setError("Введите имя клиента!");
-      return;
-    }
-
-    if (!bun) {
-      setError("Выберите булочку!");
-      return;
-    }
+    setLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/orders/",
-        {
-          customer: customer,
-          bun: bun,
-          meat: meat,
-          ingredients: ingredients,
-          quantity: quantity,
-        }
-      );
+      await login(username, password);
 
-      setOrder(response.data);
+      const data = await getProfile();
+
+      setProfile(data);
     } catch (error) {
       console.error(error);
-      setError("Ошибка при создании заказа!");
+
+      setError("Неверный логин или пароль");
+    } finally {
+      setLoading(false);
     }
   };
 
+
+  const handleLogout = () => {
+    logout();
+
+    setProfile(null);
+    setUsername("");
+    setPassword("");
+  };
+
+
   return (
-    <div className="container">
-      <h1> Конструктор бургера</h1>
+    <div style={styles.container}>
 
-      <form onSubmit={handleSubmit}>
-        <label>Имя клиента</label>
+      <div style={styles.card}>
 
-        <input
-          type="text"
-          placeholder="Например: Мага"
-          value={customer}
-          onChange={(e) => setCustomer(e.target.value)}
-        />
+        <h1>JWT Авторизация</h1>
 
-        <label>Булочка</label>
+        {!profile ? (
+          <form onSubmit={handleLogin}>
 
-        <select
-          value={bun}
-          onChange={(e) => setBun(e.target.value)}
-        >
-          <option value="">Выберите булочку</option>
-          <option value="Бриошь">Бриошь</option>
-          <option value="Классическая">Классическая</option>
-          <option value="Чиабатта">Чиабатта</option>
-        </select>
+            <input
+              type="text"
+              placeholder="Логин"
+              value={username}
+              onChange={(event) =>
+                setUsername(event.target.value)
+              }
+              style={styles.input}
+            />
 
-        <label>Мясо</label>
+            <input
+              type="password"
+              placeholder="Пароль"
+              value={password}
+              onChange={(event) =>
+                setPassword(event.target.value)
+              }
+              style={styles.input}
+            />
 
-        <select
-          value={meat}
-          onChange={(e) => setMeat(e.target.value)}
-        >
-          <option value="">Выберите мясо</option>
-          <option value="Говядина">Говядина</option>
-          <option value="Курица">Курица</option>
-          <option value="Свинина">Свинина</option>
-        </select>
-
-        <label>Дополнительные ингредиенты</label>
-
-        <div className="ingredients">
-          {availableIngredients.map((ingredient) => (
-            <label
-              className="ingredient"
-              key={ingredient}
+            <button
+              type="submit"
+              style={styles.button}
+              disabled={loading}
             >
-              <input
-                type="checkbox"
-                checked={ingredients.includes(ingredient)}
-                onChange={() =>
-                  handleIngredientChange(ingredient)
-                }
-              />
+              {loading ? "Вход..." : "Войти"}
+            </button>
 
-              {ingredient}
-            </label>
-          ))}
-        </div>
+            {error && (
+              <p style={styles.error}>
+                {error}
+              </p>
+            )}
 
-        <label>Количество</label>
+          </form>
+        ) : (
 
-        <div className="quantity">
-          <button
-            type="button"
-            onClick={() =>
-              setQuantity(Math.max(1, quantity - 1))
-            }
-          >
-            −
-          </button>
+          <div>
 
-          <span>{quantity}</span>
+            <h2>Вы авторизованы! </h2>
 
-          <button
-            type="button"
-            onClick={() => setQuantity(quantity + 1)}
-          >
-            +
-          </button>
-        </div>
+            <p>
+              <b>Username:</b> {profile.username}
+            </p>
 
-        <button className="order-button" type="submit">
-          Заказать
-        </button>
-      </form>
+            <p>
+              <b>Email:</b> {profile.email}
+            </p>
 
-      {error && (
-        <div className="error">
-          {error}
-        </div>
-      )}
+            <p>
+              {profile.message}
+            </p>
 
-      {order && (
-        <div className="success">
-          <h2> Заказ создан!</h2>
+            <button
+              onClick={handleLogout}
+              style={styles.logout}
+            >
+              Выйти
+            </button>
 
-          <p>
-            <strong>Бургер:</strong>{" "}
-            {order.bun} + {order.meat}
-          </p>
+          </div>
 
-          <p>
-            <strong>Добавки:</strong>{" "}
-            {order.ingredients.length > 0
-              ? order.ingredients.join(", ")
-              : "нет"}
-          </p>
+        )}
 
-          <p>
-            <strong>Количество:</strong> {order.quantity}
-          </p>
-        </div>
-      )}
+      </div>
+
     </div>
   );
 }
+
+
+const styles = {
+  container: {
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "#f5f5f5",
+  },
+
+  card: {
+    width: "350px",
+    padding: "30px",
+    background: "white",
+    borderRadius: "12px",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+  },
+
+  input: {
+    width: "100%",
+    padding: "12px",
+    marginBottom: "15px",
+    boxSizing: "border-box",
+  },
+
+  button: {
+    width: "100%",
+    padding: "12px",
+    cursor: "pointer",
+  },
+
+  logout: {
+    padding: "10px 20px",
+    cursor: "pointer",
+  },
+
+  error: {
+    color: "red",
+  },
+};
+
 
 export default App;
